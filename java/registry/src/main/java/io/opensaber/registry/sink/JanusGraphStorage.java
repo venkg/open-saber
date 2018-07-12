@@ -33,6 +33,8 @@ public class JanusGraphStorage extends DatabaseProvider {
         config.setProperty("storage.hostname", hostname);
         config.setProperty("index.search.backend", searchIndex);
         config.setProperty("index.search.hostname", searchHostname);
+        config.setProperty("storage.cassandra.astyanax.max-connections-per-host", 8);
+        config.setProperty("cache.db-cache", true);
         config.setProperty("cache.db-cache-size", Float.parseFloat(dbCacheSize));
         config.setProperty("cache.db-cache-clean-wait", Integer.parseInt(dbCacheCleanUpWaitTime));
         graph = JanusGraphFactory.open(config);

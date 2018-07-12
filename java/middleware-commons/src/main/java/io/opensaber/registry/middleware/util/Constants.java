@@ -54,6 +54,8 @@ public class Constants {
 	public static final String GRAPH_GLOBAL_CONFIG = "graph_global_config";
 	public static final String PERSISTENT_GRAPH = "persisten_graph";
 
+	public static final String INTERNAL_STORAGE_ID = "@_internal_id";
+
 	public enum GraphDatabaseProvider {
 		NEO4J("NEO4J"),
 		ORIENTDB("ORIENTDB"),

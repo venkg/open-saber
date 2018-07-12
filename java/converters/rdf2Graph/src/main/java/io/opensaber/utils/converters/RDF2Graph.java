@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.XMLConstants;
 
-public final class RDF2Graph 
+public final class RDF2Graph
 {
 	private RDF2Graph() {}
 
@@ -84,7 +84,7 @@ public final class RDF2Graph
 			s.addEdge(property.toString(), o);
 		} else if (objectValue instanceof BNode) {
 			BNode objectBNode = (BNode)objectValue;
-			Vertex o = getExistingVertexOrAdd(objectBNode.toString(), graph);		
+			Vertex o = getExistingVertexOrAdd(objectBNode.toString(), graph);
 			s.addEdge(property.toString(), o);
 		}
 	}
@@ -104,16 +104,16 @@ public final class RDF2Graph
 		ModelBuilder builder = new ModelBuilder();
 		GraphTraversalSource t = graph.traversal();
 		GraphTraversal<Vertex, Vertex> hasLabel = t.V().hasLabel(label);
-		Vertex s;
-		if(hasLabel.hasNext()){
-			s = hasLabel.next();
+		// GraphTraversal<Vertex, Vertex> hasLabel = t.V().has("http://localhost:8080/@internalId", label);
+		if (hasLabel.hasNext()) {
+			Vertex s = hasLabel.next();
 			extractModelFromVertex(builder, s);
 		}
 		return builder.build();
 	}
 
 	private static void extractModelFromVertex(ModelBuilder builder, Vertex s) {
-		logger.debug("Vertex "+s.label());
+		logger.debug("Vertex " + s.label());
 		ValueFactory vf = SimpleValueFactory.getInstance();
 		logger.debug("ADDING it as Subject");
 		builder.subject(s.label());
@@ -163,7 +163,7 @@ public final class RDF2Graph
 		}
 		Iterator<Edge> edgeIter = s.edges(Direction.OUT);
 		Edge edge;
-		Stack<Vertex> vStack = new Stack<Vertex>();
+		Stack<Vertex> vStack = new Stack<>();
 		while(edgeIter.hasNext()){
 			edge = edgeIter.next();
 			s = edge.inVertex();
@@ -189,58 +189,58 @@ public final class RDF2Graph
 	private static Object matchAndAddStatements(String type, String literal, ValueFactory vf){
 		Object object = literal;
 		switch(type){
-		case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#boolean":
-			logger.debug("Found boolean");
+			case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#boolean":
+				logger.debug("Found boolean");
 
-		object=vf.createLiteral(XMLDatatypeUtil.parseBoolean(literal));
-		break;
-		case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#byte":
-			object=vf.createLiteral(XMLDatatypeUtil.parseByte(literal));
-		logger.debug("Found byte");
-		break;
-		case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#short":
-			object=vf.createLiteral(XMLDatatypeUtil.parseShort(literal));
-		logger.debug("Found short");
-		break;
-		case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#int":
-			object=vf.createLiteral(XMLDatatypeUtil.parseInt(literal));
-		logger.debug("Found int");
-		break;
-		case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#long":
-			object=vf.createLiteral(XMLDatatypeUtil.parseLong(literal));
-		logger.debug("Found long");
-		break;
-		case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#float":
-			object=vf.createLiteral(XMLDatatypeUtil.parseFloat(literal));
-		logger.debug("Found float");
-		break;
-		case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#double":
-			object=vf.createLiteral(XMLDatatypeUtil.parseDouble(literal));
-		logger.debug("Found double");
-		break;
-		case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#integer":
-			object=vf.createLiteral(XMLDatatypeUtil.parseInteger(literal));
-		logger.debug("Found integer");
-		break;
-		case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#decimal":
-			object=vf.createLiteral(XMLDatatypeUtil.parseDecimal(literal));
-		logger.debug("Found decimal");
-		break;
-		case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#dateTime":
-		case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#time":
-		case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#date":
-		case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#gYearMonth":
-		case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#gMonthDay":
-		case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#gYear":
-		case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#gMonth":
-		case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#gDay":
-			object=vf.createLiteral(XMLDatatypeUtil.parseCalendar(literal));
-		logger.debug("Found date");
-		break;
-		//                    case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#duration":
-		//                        object=vf.createLiteral(XMLDatatypeUtil.parseDuration(literal));
-		//                        logger.info("Found duration");
-		//                        break;
+				object=vf.createLiteral(XMLDatatypeUtil.parseBoolean(literal));
+				break;
+			case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#byte":
+				object=vf.createLiteral(XMLDatatypeUtil.parseByte(literal));
+				logger.debug("Found byte");
+				break;
+			case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#short":
+				object=vf.createLiteral(XMLDatatypeUtil.parseShort(literal));
+				logger.debug("Found short");
+				break;
+			case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#int":
+				object=vf.createLiteral(XMLDatatypeUtil.parseInt(literal));
+				logger.debug("Found int");
+				break;
+			case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#long":
+				object=vf.createLiteral(XMLDatatypeUtil.parseLong(literal));
+				logger.debug("Found long");
+				break;
+			case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#float":
+				object=vf.createLiteral(XMLDatatypeUtil.parseFloat(literal));
+				logger.debug("Found float");
+				break;
+			case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#double":
+				object=vf.createLiteral(XMLDatatypeUtil.parseDouble(literal));
+				logger.debug("Found double");
+				break;
+			case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#integer":
+				object=vf.createLiteral(XMLDatatypeUtil.parseInteger(literal));
+				logger.debug("Found integer");
+				break;
+			case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#decimal":
+				object=vf.createLiteral(XMLDatatypeUtil.parseDecimal(literal));
+				logger.debug("Found decimal");
+				break;
+			case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#dateTime":
+			case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#time":
+			case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#date":
+			case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#gYearMonth":
+			case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#gMonthDay":
+			case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#gYear":
+			case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#gMonth":
+			case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#gDay":
+				object=vf.createLiteral(XMLDatatypeUtil.parseCalendar(literal));
+				logger.debug("Found date");
+				break;
+			//                    case XMLConstants.W3C_XML_SCHEMA_NS_URI+"#duration":
+			//                        object=vf.createLiteral(XMLDatatypeUtil.parseDuration(literal));
+			//                        logger.info("Found duration");
+			//                        break;
 		}
 		return object;
 	}

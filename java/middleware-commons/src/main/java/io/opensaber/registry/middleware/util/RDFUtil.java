@@ -111,7 +111,7 @@ public class RDFUtil {
     
     
     public static List<Resource> getRootLabels(Model rdfModel){
-    	List<Resource> rootLabelList = new ArrayList<Resource>();
+    	List<Resource> rootLabelList = new ArrayList<>();
     	ResIterator resIter = rdfModel.listSubjects();
 		while(resIter.hasNext()){
 			Resource resource = resIter.next();
