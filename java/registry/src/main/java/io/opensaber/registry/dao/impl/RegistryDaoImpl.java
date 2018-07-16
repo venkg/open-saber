@@ -136,11 +136,13 @@ public class RegistryDaoImpl implements RegistryDao {
         Graph graphFromStore = databaseProvider.getGraphStore();
         GraphTraversalSource traversalSource = graphFromStore.traversal();
 
-        if (!traversalSource.clone().V().hasLabel(rootLabel).hasNext()) {
+      //  if (!traversalSource.clone().V().hasLabel(rootLabel).hasNext()) {
+        if(!doesExist(rootLabel, graphFromStore)){
             // closeGraph(graphFromStore);
             throw new RecordNotFoundException(Constants.ENTITY_NOT_FOUND);
         }
-        if (!traversalSource.clone().V().hasLabel(label).hasNext()) {
+       // if (!traversalSource.clone().V().hasLabel(label).hasNext()) {
+        if(!doesExist(label, graphFromStore)){
             // closeGraph(graphFromStore);
             throw new RecordNotFoundException(Constants.ENTITY_NOT_FOUND);
         }
@@ -149,8 +151,10 @@ public class RegistryDaoImpl implements RegistryDao {
     }
 
     private void connectRootToEntity(GraphTraversalSource dbTraversalSource, String rootLabel, String label, String property) throws RecordNotFoundException, NoSuchElementException, EncryptionException, AuditFailedException {
-        GraphTraversal<Vertex, Vertex> rootGts = dbTraversalSource.clone().V().hasLabel(rootLabel);
-        GraphTraversal<Vertex, Vertex> entityGts = dbTraversalSource.clone().V().hasLabel(label);
+        /*GraphTraversal<Vertex, Vertex> rootGts = dbTraversalSource.clone().V().hasLabel(rootLabel);
+        GraphTraversal<Vertex, Vertex> entityGts = dbTraversalSource.clone().V().hasLabel(label);*/
+        GraphTraversal<Vertex, Vertex> rootGts = dbTraversalSource.clone().V().has(Constants.INTERNAL_STORAGE_ID, rootLabel);
+        GraphTraversal<Vertex, Vertex> entityGts = dbTraversalSource.clone().V().has(Constants.INTERNAL_STORAGE_ID, label);
         Vertex rootVertex = rootGts.next();
         Vertex entityVertex = entityGts.next();
         rootVertex.addEdge(property, entityVertex);
