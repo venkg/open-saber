@@ -40,10 +40,12 @@ public class Neo4jGraphProvider extends DatabaseProvider {
                 String databaseHost = environment.getProperty("database.neo4j.host");
                 String databasePort = environment.getProperty("database.neo4j.port");
                 Boolean profilerEnabled = Boolean.parseBoolean(environment.getProperty("database.neo4j.profiler_enabled"));
+                String internalIdLabel = "`" + Constants.INTERNAL_STORAGE_ID + "`";
                 driver = GraphDatabase.driver(String.format("bolt://%s:%s", databaseHost, databasePort), AuthTokens.none());
                 Neo4JElementIdProvider<?> idProvider = new Neo4JNativeElementIdProvider();
                 Neo4JGraph neo4JGraph = new Neo4JGraph(driver, idProvider, idProvider);
                 neo4JGraph.setProfilerEnabled(profilerEnabled);
+                neo4JGraph.createIndex("internalIdUniqueIndex", internalIdLabel);
                 graph = neo4JGraph;
                 logger.info("Initializing remote graph db for ");
                 logger.info("host: %s \n\t port: %s \n\t driver:  %s", databaseHost, databasePort,driver);

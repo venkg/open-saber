@@ -190,7 +190,8 @@ public class RegistryDaoImpl implements RegistryDao {
         while (gts.hasNext()) {
             Vertex v = gts.next();
             // GraphTraversal<Vertex, Vertex> hasLabel = dbTraversalSource.clone().V().hasLabel(rootLabel);
-            GraphTraversal<Vertex, Vertex> matchingDbVertex = dbTraversalSource.clone().V().has(registryContext + Constants.INTERNAL_STORAGE_ID, rootLabel);
+            // GraphTraversal<Vertex, Vertex> matchingDbVertex = dbTraversalSource.clone().V().has(registryContext + Constants.INTERNAL_STORAGE_ID, rootLabel);
+            GraphTraversal<Vertex, Vertex> matchingDbVertex = dbTraversalSource.clone().V().has(Constants.INTERNAL_STORAGE_ID, rootLabel);
             ImmutableTable.Builder<Vertex,Vertex,Map<String,Object>> encDecPropertyBuilder = ImmutableTable.<Vertex,Vertex,Map<String,Object>> builder();
 
             if (matchingDbVertex.hasNext()) {
@@ -208,7 +209,8 @@ public class RegistryDaoImpl implements RegistryDao {
                 label = generateBlankNodeLabel(rootLabel);
                 logger.info(String.format("Creating entity with label {}", rootLabel));
                 // Vertex newVertex = dbTraversalSource.clone().addV(label).next();
-                Vertex newVertex = dbTraversalSource.clone().addV().property(registryContext + Constants.INTERNAL_STORAGE_ID, label).next();
+                // Vertex newVertex = dbTraversalSource.clone().addV().property(registryContext + Constants.INTERNAL_STORAGE_ID, label).next();
+                Vertex newVertex = dbTraversalSource.clone().addV().property(Constants.INTERNAL_STORAGE_ID, label).next();
                 setAuditInfo(v, true);
                 copyProperties(v, newVertex, methodOrigin, encDecPropertyBuilder);
                 // watch.start("RegistryDaoImpl.addOrUpdateVertexAndEdge()");
@@ -252,7 +254,8 @@ public class RegistryDaoImpl implements RegistryDao {
             Optional<Edge> edgeVertexAlreadyExists =
                     dbEdgesForVertex.stream().filter(ed -> ed.label().equalsIgnoreCase(edgeLabel)
                             // && ed.inVertex().label().equalsIgnoreCase(ver.label())).findFirst();
-                            && ed.inVertex().property(registryContext + Constants.INTERNAL_STORAGE_ID).value()
+                            // && ed.inVertex().property(registryContext + Constants.INTERNAL_STORAGE_ID).value()
+                            && ed.inVertex().property(Constants.INTERNAL_STORAGE_ID).value()
                             .equals(ver.label())).findFirst();
             if (edgeVertexAlreadyExists.isPresent()) {
                 edgeVertexMatchList.add(edgeVertexAlreadyExists.get());
@@ -265,13 +268,15 @@ public class RegistryDaoImpl implements RegistryDao {
             Vertex ver = e.inVertex();
             String edgeLabel = e.label();
             // GraphTraversal<Vertex, Vertex> gt = dbGraph.clone().V().hasLabel(ver.label());
-            GraphTraversal<Vertex, Vertex> gt = dbGraph.clone().V().has(registryContext + Constants.INTERNAL_STORAGE_ID, ver.label());
+            // GraphTraversal<Vertex, Vertex> gt = dbGraph.clone().V().has(registryContext + Constants.INTERNAL_STORAGE_ID, ver.label());
+            GraphTraversal<Vertex, Vertex> gt = dbGraph.clone().V().has(Constants.INTERNAL_STORAGE_ID, ver.label());
             Optional<Edge> edgeAlreadyExists =
                     dbEdgesForVertex.stream().filter(ed -> ed.label().equalsIgnoreCase(e.label())).findFirst();
             Optional<Edge> edgeVertexAlreadyExists =
                     dbEdgesForVertex.stream().filter(ed -> ed.label().equalsIgnoreCase(edgeLabel)
                             // && ed.inVertex().label().equalsIgnoreCase(ver.label())).findFirst();
-                            && ed.inVertex().property(registryContext + Constants.INTERNAL_STORAGE_ID).value()
+                            // && ed.inVertex().property(registryContext + Constants.INTERNAL_STORAGE_ID).value()
+                            && ed.inVertex().property(Constants.INTERNAL_STORAGE_ID).value()
                             .equals(ver.label())).findFirst();
             verifyAndDelete(dbVertex, e, edgeAlreadyExists, edgeVertexMatchList, methodOrigin);
             if (gt.hasNext()) {
@@ -303,7 +308,8 @@ public class RegistryDaoImpl implements RegistryDao {
                 // String label = generateBlankNodeLabel(ver.label());
                 String label = generateBlankNodeLabel(ver.label());
                 // Vertex newV = dbGraph.addV(label).next();
-                Vertex newV = dbGraph.addV().property(registryContext + Constants.INTERNAL_STORAGE_ID, label).next();
+                // Vertex newV = dbGraph.addV().property(registryContext + Constants.INTERNAL_STORAGE_ID, label).next();
+                Vertex newV = dbGraph.addV().property(Constants.INTERNAL_STORAGE_ID, label).next();
                 setAuditInfo(ver, true);
                 logger.debug(String.format("RegistryDaoImpl : Adding vertex with label {} and adding properties", newV.label()));
                 copyProperties(ver, newV, methodOrigin, encDecPropertyBuilder);
@@ -497,7 +503,8 @@ public class RegistryDaoImpl implements RegistryDao {
         GraphTraversalSource traversalSource = graphFromStore.traversal();
         // GraphTraversal<Vertex, Vertex> hasLabel = traversalSource.clone().V().hasLabel(label);
         GraphTraversal<Vertex, Vertex> matchingDbVertex = traversalSource.clone().V()
-                .has(registryContext + Constants.INTERNAL_STORAGE_ID, label);
+                // .has(registryContext + Constants.INTERNAL_STORAGE_ID, label);
+                .has(Constants.INTERNAL_STORAGE_ID, label);
         ImmutableTable.Builder<Vertex, Vertex, Map<String, Object>> encDecPropertyBuilder = ImmutableTable.<Vertex, Vertex, Map<String, Object>>builder();
         Graph parsedGraph = TinkerGraph.open();
         if (!matchingDbVertex.hasNext()) {
@@ -507,7 +514,8 @@ public class RegistryDaoImpl implements RegistryDao {
             logger.info("Record exists for label : {}", label);
             Vertex subject = matchingDbVertex.next();
             // Vertex newSubject = parsedGraph.addVertex(subject.label());
-            Vertex newSubject = parsedGraph.addVertex(String.valueOf(subject.property(registryContext + Constants.INTERNAL_STORAGE_ID).value()));
+            // Vertex newSubject = parsedGraph.addVertex(String.valueOf(subject.property(registryContext + Constants.INTERNAL_STORAGE_ID).value()));
+            Vertex newSubject = parsedGraph.addVertex(String.valueOf(subject.property(Constants.INTERNAL_STORAGE_ID).value()));
             copyProperties(subject, newSubject, "read", encDecPropertyBuilder);
             watch.start("RegistryDaoImpl.getEntityById.extractGraphFromVertex");
             extractGraphFromVertex(parsedGraph, newSubject, subject, encDecPropertyBuilder);
@@ -550,7 +558,8 @@ public class RegistryDaoImpl implements RegistryDao {
             } else {
                 if (!(methodOrigin.equalsIgnoreCase("read")
                         && property.key().contains("@audit"))) {
-                    if (!property.key().equals(registryContext + Constants.INTERNAL_STORAGE_ID)) {
+                    // if (!property.key().equals(registryContext + Constants.INTERNAL_STORAGE_ID)) {
+                    if (!property.key().equals(Constants.INTERNAL_STORAGE_ID)) {
                         setProperty(newSubject, property.key(), property.value(), methodOrigin);
                         setMetaProperty(subject, newSubject, property, methodOrigin);
                     }
@@ -735,7 +744,8 @@ public class RegistryDaoImpl implements RegistryDao {
             edge = edgeIter.next();
             Vertex o = edge.inVertex();
             // Vertex newo = parsedGraph.addVertex(o.label());
-            Vertex newo = parsedGraph.addVertex(String.valueOf(o.property(registryContext + Constants.INTERNAL_STORAGE_ID).value()));
+            // Vertex newo = parsedGraph.addVertex(String.valueOf(o.property(registryContext + Constants.INTERNAL_STORAGE_ID).value()));
+            Vertex newo = parsedGraph.addVertex(String.valueOf(o.property(Constants.INTERNAL_STORAGE_ID).value()));
             copyProperties(o, newo,"read", encDecPropertyBuilder);
             parsedGraphSubject.addEdge(edge.label(), newo);
             vStack.push(o);
@@ -909,7 +919,8 @@ public class RegistryDaoImpl implements RegistryDao {
         if(isaBlankNode(internalId))
             return false;
         try {
-            Iterator iter = dbGraph.traversal().clone().V().has(registryContext + Constants.INTERNAL_STORAGE_ID, internalId);
+            // Iterator iter = dbGraph.traversal().clone().V().has(registryContext + Constants.INTERNAL_STORAGE_ID, internalId);
+            Iterator iter = dbGraph.traversal().clone().V().has(Constants.INTERNAL_STORAGE_ID, internalId);
             return iter.hasNext();
         } catch(Exception e){
             return false;
