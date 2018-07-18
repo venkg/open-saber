@@ -275,7 +275,7 @@ public class RegistryDaoImplTest extends RegistryTestBase {
 		updateNodeLabel(newRdfModel, "http://example.com/voc/teacher/1.0.0/IndianUrbanPostalAddress");
 
 		String addressLabel = databaseProvider.getGraphStore().traversal().clone().V()
-				.has(T.label, "http://example.com/voc/teacher/1.0.0/IndianUrbanPostalAddress")
+				.has(Constants.INTERNAL_STORAGE_ID, "http://example.com/voc/teacher/1.0.0/IndianUrbanPostalAddress")
 				.next().vertices(Direction.IN).next().label();
 
 		// Add a new property to the existing address node
@@ -325,7 +325,7 @@ public class RegistryDaoImplTest extends RegistryTestBase {
 		removeStatementFromModel(newRdfModel, ResourceFactory.createProperty("http://example.com/voc/teacher/1.0.0/municipality"));
 
 		String addressLabel = databaseProvider.getGraphStore().traversal().clone().V()
-				.has(T.label, "http://example.com/voc/teacher/1.0.0/IndianUrbanPostalAddress")
+				.has(Constants.INTERNAL_STORAGE_ID, "http://example.com/voc/teacher/1.0.0/IndianUrbanPostalAddress")
 				.next().vertices(Direction.IN).next().label();
 
 		// Add a new property to the existing address node
@@ -801,7 +801,7 @@ public class RegistryDaoImplTest extends RegistryTestBase {
 
 	private void updateNodeLabel(Model rdfModel, String nodeLabel) {
 		String labelForUpdate = databaseProvider.getGraphStore().traversal().clone().V()
-				.has(T.label, nodeLabel)
+				.has(Constants.INTERNAL_STORAGE_ID, nodeLabel)
 				.next().vertices(Direction.IN).next().label();
 		RDFUtil.updateRdfModelNodeId(rdfModel,
 				ResourceFactory.createResource(nodeLabel), labelForUpdate);

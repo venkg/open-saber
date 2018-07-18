@@ -55,6 +55,7 @@ public class Constants {
 	public static final String PERSISTENT_GRAPH = "persisten_graph";
 
 	public static final String INTERNAL_STORAGE_ID = "@_internal_id";
+	public static final String NODE_LABEL = "internalIdUniqueIndex";
 
 	public enum GraphDatabaseProvider {
 		NEO4J("NEO4J"),

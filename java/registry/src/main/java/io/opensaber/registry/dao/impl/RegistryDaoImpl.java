@@ -13,6 +13,7 @@ import io.opensaber.registry.service.EncryptionService;
 import io.opensaber.registry.sink.DatabaseProvider;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.process.traversal.util.TraversalMetrics;
 import org.apache.tinkerpop.gremlin.structure.*;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
@@ -106,7 +107,9 @@ public class RegistryDaoImpl implements RegistryDao {
             if (rootNodeLabel != null && property != null) {
                 connectNodes(rootNodeLabel, label, property);
             }
-            tx.commit();
+            synchronized(tx){
+            	tx.commit();
+            }
             logger.debug("RegistryDaoImpl : Entity added for transactional DB with rootNodeLabel : {},	label	:	{},	property	: 	{}", rootNodeLabel, label, property);
         } else {
             watch.start("RegistryDaoImpl.addOrUpdateVerticesAndEdges");
@@ -153,8 +156,8 @@ public class RegistryDaoImpl implements RegistryDao {
     private void connectRootToEntity(GraphTraversalSource dbTraversalSource, String rootLabel, String label, String property) throws RecordNotFoundException, NoSuchElementException, EncryptionException, AuditFailedException {
         /*GraphTraversal<Vertex, Vertex> rootGts = dbTraversalSource.clone().V().hasLabel(rootLabel);
         GraphTraversal<Vertex, Vertex> entityGts = dbTraversalSource.clone().V().hasLabel(label);*/
-        GraphTraversal<Vertex, Vertex> rootGts = dbTraversalSource.clone().V().has(Constants.INTERNAL_STORAGE_ID, rootLabel);
-        GraphTraversal<Vertex, Vertex> entityGts = dbTraversalSource.clone().V().has(Constants.INTERNAL_STORAGE_ID, label);
+        GraphTraversal<Vertex, Vertex> rootGts = dbTraversalSource.clone().V().hasLabel(Constants.NODE_LABEL).has(Constants.INTERNAL_STORAGE_ID, rootLabel);
+        GraphTraversal<Vertex, Vertex> entityGts = dbTraversalSource.clone().V().hasLabel(Constants.NODE_LABEL).has(Constants.INTERNAL_STORAGE_ID, label);
         Vertex rootVertex = rootGts.next();
         Vertex entityVertex = entityGts.next();
         rootVertex.addEdge(property, entityVertex);
@@ -195,7 +198,7 @@ public class RegistryDaoImpl implements RegistryDao {
             Vertex v = gts.next();
             // GraphTraversal<Vertex, Vertex> hasLabel = dbTraversalSource.clone().V().hasLabel(rootLabel);
             // GraphTraversal<Vertex, Vertex> matchingDbVertex = dbTraversalSource.clone().V().has(registryContext + Constants.INTERNAL_STORAGE_ID, rootLabel);
-            GraphTraversal<Vertex, Vertex> matchingDbVertex = dbTraversalSource.clone().V().has(Constants.INTERNAL_STORAGE_ID, rootLabel);
+            GraphTraversal<Vertex, Vertex> matchingDbVertex = dbTraversalSource.clone().V().hasLabel(Constants.NODE_LABEL).has(Constants.INTERNAL_STORAGE_ID, rootLabel);
             ImmutableTable.Builder<Vertex,Vertex,Map<String,Object>> encDecPropertyBuilder = ImmutableTable.<Vertex,Vertex,Map<String,Object>> builder();
 
             if (matchingDbVertex.hasNext()) {
@@ -214,7 +217,7 @@ public class RegistryDaoImpl implements RegistryDao {
                 logger.info(String.format("Creating entity with label {}", rootLabel));
                 // Vertex newVertex = dbTraversalSource.clone().addV(label).next();
                 // Vertex newVertex = dbTraversalSource.clone().addV().property(registryContext + Constants.INTERNAL_STORAGE_ID, label).next();
-                Vertex newVertex = dbTraversalSource.clone().addV().property(Constants.INTERNAL_STORAGE_ID, label).next();
+                Vertex newVertex = dbTraversalSource.clone().addV(Constants.NODE_LABEL).property(Constants.INTERNAL_STORAGE_ID, label).next();
                 setAuditInfo(v, true);
                 copyProperties(v, newVertex, methodOrigin, encDecPropertyBuilder);
                 // watch.start("RegistryDaoImpl.addOrUpdateVertexAndEdge()");
@@ -273,7 +276,7 @@ public class RegistryDaoImpl implements RegistryDao {
             String edgeLabel = e.label();
             // GraphTraversal<Vertex, Vertex> gt = dbGraph.clone().V().hasLabel(ver.label());
             // GraphTraversal<Vertex, Vertex> gt = dbGraph.clone().V().has(registryContext + Constants.INTERNAL_STORAGE_ID, ver.label());
-            GraphTraversal<Vertex, Vertex> gt = dbGraph.clone().V().has(Constants.INTERNAL_STORAGE_ID, ver.label());
+            GraphTraversal<Vertex, Vertex> gt = dbGraph.clone().V().hasLabel(Constants.NODE_LABEL).has(Constants.INTERNAL_STORAGE_ID, ver.label());
             Optional<Edge> edgeAlreadyExists =
                     dbEdgesForVertex.stream().filter(ed -> ed.label().equalsIgnoreCase(e.label())).findFirst();
             Optional<Edge> edgeVertexAlreadyExists =
@@ -313,7 +316,7 @@ public class RegistryDaoImpl implements RegistryDao {
                 String label = generateBlankNodeLabel(ver.label());
                 // Vertex newV = dbGraph.addV(label).next();
                 // Vertex newV = dbGraph.addV().property(registryContext + Constants.INTERNAL_STORAGE_ID, label).next();
-                Vertex newV = dbGraph.addV().property(Constants.INTERNAL_STORAGE_ID, label).next();
+                Vertex newV = dbGraph.addV(Constants.NODE_LABEL).property(Constants.INTERNAL_STORAGE_ID, label).next();
                 setAuditInfo(ver, true);
                 logger.debug(String.format("RegistryDaoImpl : Adding vertex with label {} and adding properties", newV.label()));
                 copyProperties(ver, newV, methodOrigin, encDecPropertyBuilder);
@@ -484,7 +487,9 @@ public class RegistryDaoImpl implements RegistryDao {
                 //createOrUpdateEntity(graphForUpdate, rootNodeLabel, methodOrigin);
                 watch.start("RegistryDaoImpl.updateEntity");
                 addOrUpdateVerticesAndEdges(dbGraphTraversalSource, traversal, rootNodeLabel, methodOrigin);
-                tx.commit();
+                synchronized(tx){
+                	tx.commit();
+                }
                 watch.stop("RegistryDaoImpl.updateEntity");
                 logger.debug("RegistryDaoImpl : Entity Updated for transactional DB with rootNodeLabel : {}", rootNodeLabel);
             } else {
@@ -506,9 +511,10 @@ public class RegistryDaoImpl implements RegistryDao {
         Graph graphFromStore = databaseProvider.getGraphStore();
         GraphTraversalSource traversalSource = graphFromStore.traversal();
         // GraphTraversal<Vertex, Vertex> hasLabel = traversalSource.clone().V().hasLabel(label);
-        GraphTraversal<Vertex, Vertex> matchingDbVertex = traversalSource.clone().V()
+        GraphTraversal<Vertex, Vertex> matchingDbVertex = traversalSource.clone().V().hasLabel(Constants.NODE_LABEL)
                 // .has(registryContext + Constants.INTERNAL_STORAGE_ID, label);
                 .has(Constants.INTERNAL_STORAGE_ID, label);
+        
         ImmutableTable.Builder<Vertex, Vertex, Map<String, Object>> encDecPropertyBuilder = ImmutableTable.<Vertex, Vertex, Map<String, Object>>builder();
         Graph parsedGraph = TinkerGraph.open();
         if (!matchingDbVertex.hasNext()) {
@@ -516,6 +522,7 @@ public class RegistryDaoImpl implements RegistryDao {
             throw new RecordNotFoundException(Constants.ENTITY_NOT_FOUND);
         } else {
             logger.info("Record exists for label : {}", label);
+            
             Vertex subject = matchingDbVertex.next();
             // Vertex newSubject = parsedGraph.addVertex(subject.label());
             // Vertex newSubject = parsedGraph.addVertex(String.valueOf(subject.property(registryContext + Constants.INTERNAL_STORAGE_ID).value()));
@@ -924,7 +931,7 @@ public class RegistryDaoImpl implements RegistryDao {
             return false;
         try {
             // Iterator iter = dbGraph.traversal().clone().V().has(registryContext + Constants.INTERNAL_STORAGE_ID, internalId);
-            Iterator iter = dbGraph.traversal().clone().V().has(Constants.INTERNAL_STORAGE_ID, internalId);
+            Iterator iter = dbGraph.traversal().clone().V().hasLabel(Constants.NODE_LABEL).has(Constants.INTERNAL_STORAGE_ID, internalId);
             return iter.hasNext();
         } catch(Exception e){
             return false;

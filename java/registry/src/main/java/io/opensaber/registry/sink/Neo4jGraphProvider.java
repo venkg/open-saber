@@ -45,7 +45,7 @@ public class Neo4jGraphProvider extends DatabaseProvider {
                 Neo4JElementIdProvider<?> idProvider = new Neo4JNativeElementIdProvider();
                 Neo4JGraph neo4JGraph = new Neo4JGraph(driver, idProvider, idProvider);
                 neo4JGraph.setProfilerEnabled(profilerEnabled);
-                neo4JGraph.createIndex("internalIdUniqueIndex", internalIdLabel);
+                neo4JGraph.createIndex(Constants.NODE_LABEL, internalIdLabel);
                 graph = neo4JGraph;
                 graph.tx().commit();
                 logger.info("Initializing remote graph db for ");
