@@ -277,6 +277,9 @@ public class RegistryDaoImplTest extends RegistryTestBase {
 		String addressLabel = databaseProvider.getGraphStore().traversal().clone().V()
 				.has(Constants.INTERNAL_STORAGE_ID, "http://example.com/voc/teacher/1.0.0/IndianUrbanPostalAddress")
 				.next().vertices(Direction.IN).next().label();
+		if(!isIRI(addressLabel)){
+			addressLabel = registryContext + addressLabel;
+		}
 
 		// Add a new property to the existing address node
 		Resource resource = ResourceFactory.createResource(addressLabel);
@@ -327,6 +330,9 @@ public class RegistryDaoImplTest extends RegistryTestBase {
 		String addressLabel = databaseProvider.getGraphStore().traversal().clone().V()
 				.has(Constants.INTERNAL_STORAGE_ID, "http://example.com/voc/teacher/1.0.0/IndianUrbanPostalAddress")
 				.next().vertices(Direction.IN).next().label();
+		if(!isIRI(addressLabel)){
+			addressLabel = registryContext + addressLabel;
+		}
 
 		// Add a new property to the existing address node
 		Resource resource = ResourceFactory.createResource(addressLabel);
@@ -803,6 +809,9 @@ public class RegistryDaoImplTest extends RegistryTestBase {
 		String labelForUpdate = databaseProvider.getGraphStore().traversal().clone().V()
 				.has(Constants.INTERNAL_STORAGE_ID, nodeLabel)
 				.next().vertices(Direction.IN).next().label();
+		if(!isIRI(labelForUpdate)){
+			labelForUpdate = registryContext + labelForUpdate;
+		}
 		RDFUtil.updateRdfModelNodeId(rdfModel,
 				ResourceFactory.createResource(nodeLabel), labelForUpdate);
 	}

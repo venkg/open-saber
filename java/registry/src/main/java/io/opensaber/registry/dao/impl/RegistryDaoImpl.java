@@ -476,7 +476,8 @@ public class RegistryDaoImpl implements RegistryDao {
         TinkerGraph graphForUpdate = (TinkerGraph) entityForUpdate;
         GraphTraversalSource traversal = graphForUpdate.traversal();
         // Check if the root node being updated exists in the database
-        GraphTraversal<Vertex, Vertex> hasRootLabel = dbGraphTraversalSource.clone().V().hasLabel(rootNodeLabel);
+        GraphTraversal<Vertex, Vertex> hasRootLabel = dbGraphTraversalSource.clone().V()
+        		.hasLabel(Constants.NODE_LABEL).has(Constants.INTERNAL_STORAGE_ID, rootNodeLabel);
         if (!hasRootLabel.hasNext()) {
             // closeGraph(graphFromStore);
             throw new RecordNotFoundException(Constants.ENTITY_NOT_FOUND);

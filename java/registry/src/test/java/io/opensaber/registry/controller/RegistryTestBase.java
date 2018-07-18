@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
@@ -154,6 +155,14 @@ public class RegistryTestBase {
     	}
 
     	return resList.get(0).toString();
+    }
+	
+	public boolean isIRI(String label) {
+        UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
+        if (urlValidator.isValid(label)) {
+            return true;
+        }
+        return false;
     }
 
 }
