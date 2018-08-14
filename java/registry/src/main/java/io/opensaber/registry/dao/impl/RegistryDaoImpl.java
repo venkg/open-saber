@@ -556,7 +556,9 @@ public class RegistryDaoImpl implements RegistryDao {
         boolean isEntityDeleted= false;
         Graph graphFromStore = databaseProvider.getGraphStore();
         GraphTraversalSource traversalSource = graphFromStore.traversal();
-        GraphTraversal<Vertex, Vertex> hasLabel = traversalSource.clone().V().hasLabel(idLabel);
+        GraphTraversal<Vertex, Vertex> hasLabel = traversalSource.clone().V().hasLabel(Constants.NODE_LABEL)
+                // .has(registryContext + Constants.INTERNAL_STORAGE_ID, label);
+                .has(Constants.INTERNAL_STORAGE_ID, idLabel);
         //Graph parsedGraph = TinkerGraph.open();
         if (!hasLabel.hasNext()) {
             logger.info("Record not found  for label : {}", idLabel);
