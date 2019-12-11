@@ -14,10 +14,11 @@ export class DataService {
   http: HttpClient;
   baseUrl: string;
   portNumber = {
-    TrainingCenter: 8080,
-    Course:8082,
-    Teacher:8083,
-    Student: 8084
+    TrainingCenter: 9145,
+    Course:9145,
+    Teacher:9145,
+    Student: 9145,
+    Employee: 9145
     
   }
 
@@ -31,7 +32,7 @@ export class DataService {
       headers: requestParam.header ? this.getHeader(requestParam.header) : this.getHeader(),
       params: requestParam.param
     }
-    return this.http.post(this.baseUrl + this.portNumber[entityType] + requestParam.url, requestParam.data, httpOptions).pipe(
+    return this.http.post(this.baseUrl + this.portNumber[entityType] + "/" + entityType + requestParam.url, requestParam.data, httpOptions).pipe(
       mergeMap((data: any) => {
         console.log("body", data)
         if (data.responseCode !== 'OK') {
