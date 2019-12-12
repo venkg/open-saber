@@ -22,7 +22,7 @@ export class DataService {
 
   constructor(http: HttpClient) {
     this.http = http;
-    this.baseUrl = "http://127.0.0.1:9145";
+    this.baseUrl = "http://14.139.173.134:8080";
   }
 
   post(requestParam: any, entityType: string): Observable<any> {

@@ -114,7 +114,7 @@ export class SearchComponent implements OnInit, OnDestroy {
     //search by name
     if (this.key) {
       let filterTypes = {}
-      filterTypes["startsWith"] = this.key;
+      filterTypes["startsWith"] = this.key.toUpperCase();
       option[appConfig.searchParam[this.entityType]] = filterTypes
     }
     return option;

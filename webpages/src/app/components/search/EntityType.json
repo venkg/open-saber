@@ -9,6 +9,6 @@
         "TrainingCenter":"trainingCenterName",
         "Course":"courseName",
         "Teacher":"name",
-        "Student":"name"
+        "Student":"traineeName"
     }
 }
