@@ -1,9 +1,7 @@
 package io.opensaber.pojos;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@JsonIgnoreProperties
 public class AuditInfo {
     private String op;
     private String path;
@@ -26,9 +24,13 @@ public class AuditInfo {
         this.path = path;
     }
 
-    public String getFrom() { return from; }
+    public String getFrom() { 
+        return from; 
+    }
 
-    public void setFrom(String from) { this.from = from; }
+    public void setFrom(String from) { 
+        this.from = from; 
+    }
 
     @JsonIgnore
     public Object getValue() {
